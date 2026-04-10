@@ -1,0 +1,1858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dr. Auto Paint & Body | Frisco, TX</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='shield' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23cc2222'/%3E%3Cstop offset='1' stop-color='%23881111'/%3E%3C/linearGradient%3E%3ClinearGradient id='chrome' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e8e8e8'/%3E%3Cstop offset='0.5' stop-color='%23ffffff'/%3E%3Cstop offset='1' stop-color='%23aaaaaa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' fill='%230a0a0a'/%3E%3Cpath d='M32 4 L56 14 L56 42 Q56 54 32 60 Q8 54 8 42 L8 14 Z' fill='url(%23chrome)'/%3E%3Cpath d='M32 7 L53 16 L53 41 Q53 52 32 57 Q11 52 11 41 L11 16 Z' fill='url(%23shield)'/%3E%3Ctext x='32' y='30' font-family='Georgia,serif' font-size='13' font-style='italic' font-weight='700' fill='white' text-anchor='middle'%3EDr. Auto%3C/text%3E%3Ctext x='32' y='42' font-family='Arial,sans-serif' font-size='5.5' font-weight='700' fill='%23dddddd' text-anchor='middle' letter-spacing='1.5'%3EPAINT AND BODY%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --deep: #111111;
+      --surface: #181818;
+      --border: #2a2a2a;
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --white: #f5f3ef;
+      --muted: #888;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Barlow', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ─── PAGE SYSTEM ─── */
+    .page {
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      padding-top: 104px;
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.16,1,0.3,1),
+                  transform 0.45s cubic-bezier(0.16,1,0.3,1);
+      will-change: opacity, transform;
+      -webkit-overflow-scrolling: touch;
+      background: var(--black);
+    }
+    .page.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .page.exit {
+      opacity: 0;
+      transform: translateY(-12px);
+      pointer-events: none;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 104px;
+      background: rgba(10,10,10,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.45rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      list-style: none;
+    }
+    .nav-center a {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      padding: 0.45rem 1.1rem;
+      border-radius: 2rem;
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .nav-center a:hover { color: var(--white); background: rgba(255,255,255,0.07); }
+    .nav-center a.active { color: var(--gold); background: rgba(201,168,76,0.1); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-cta {
+      background: var(--gold);
+      color: var(--black) !important;
+      padding: 0.5rem 1.3rem;
+      border-radius: 2rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { background: var(--gold-light); }
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .mobile-menu-btn span { display: block; width: 22px; height: 2px; background: var(--white); transition: all 0.3s; }
+    #mobile-nav {
+      display: none;
+      position: fixed;
+      top: 104px; left: 0; right: 0;
+      background: var(--deep);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px 28px;
+      z-index: 299;
+      flex-direction: column;
+      gap: 4px;
+    }
+    #mobile-nav.open { display: flex; }
+    #mobile-nav a {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      padding: 10px 12px; border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+    #mobile-nav a:hover { color: var(--gold); background: rgba(201,168,76,0.07); }
+    #mobile-nav .mobile-call {
+      margin-top: 12px; background: var(--gold);
+      color: var(--black) !important; text-align: center;
+      border-radius: 2rem; padding: 12px;
+    }
+
+    /* ─── SHARED ─── */
+    .section-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.72rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 14px; display: block;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.8rem, 5vw, 4.8rem);
+      line-height: 0.95; letter-spacing: 0.02em;
+      color: var(--white); margin-bottom: 18px;
+    }
+    .section-sub {
+      font-size: 1rem; font-weight: 300;
+      color: rgba(245,243,239,0.6); line-height: 1.8; max-width: 540px;
+    }
+    .btn-primary {
+      display: inline-block; background: var(--gold); color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 14px 32px; text-decoration: none;
+      border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-block; border: 1px solid rgba(245,243,239,0.25);
+      color: var(--white); font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600; font-size: 0.85rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 14px 32px; text-decoration: none;
+      cursor: pointer; background: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ─── TRUST BAR ─── */
+    .trust-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 48px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    .trust-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 20px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .trust-item:last-child { border-right: none; }
+    .trust-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .trust-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-bar { background: var(--gold); overflow: hidden; padding: 13px 0; white-space: nowrap; }
+    .marquee-track { display: inline-flex; animation: marquee 30s linear infinite; }
+    .marquee-track span {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--black); padding: 0 28px;
+    }
+    .marquee-track span::before { content: '◆'; margin-right: 28px; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ─── TESTIMONIALS ─── */
+    .testimonials-section {
+      padding: 80px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .testimonials-section .section-title { text-align: center; margin-bottom: 8px; }
+    .testimonials-section .section-label { text-align: center; display: block; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 48px;
+    }
+    .testimonial-card {
+      background: var(--surface);
+      padding: 32px 28px;
+      position: relative;
+    }
+    .testimonial-stars { color: var(--gold); font-size: 0.85rem; letter-spacing: 2px; margin-bottom: 16px; }
+    .testimonial-text {
+      font-size: 0.9rem;
+      font-weight: 300;
+      line-height: 1.75;
+      color: rgba(245,243,239,0.75);
+      margin-bottom: 24px;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .testimonial-avatar {
+      width: 38px;
+      height: 38px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      color: var(--black);
+      flex-shrink: 0;
+    }
+    .testimonial-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .testimonial-vehicle { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .testimonial-quote-mark {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      color: rgba(201,168,76,0.07);
+      line-height: 1;
+    }
+
+    /* ─── CTA BAND ─── */
+    .cta-band {
+      background: var(--gold);
+      padding: 64px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .cta-band-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      color: var(--black);
+      line-height: 1;
+      max-width: 520px;
+    }
+    .cta-band-sub {
+      font-size: 0.9rem;
+      color: rgba(10,10,10,0.65);
+      margin-top: 10px;
+      font-weight: 300;
+    }
+    .btn-dark {
+      display: inline-block;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+      border: none;
+    }
+    .btn-dark:hover { background: #1a1a1a; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--black); border-top: 1px solid var(--border);
+      padding: 40px 48px; display: flex;
+      justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem;
+      letter-spacing: 0.08em; color: var(--gold); cursor: pointer; text-decoration: none;
+    }
+    .footer-copy { font-size: 0.78rem; color: var(--muted); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none; cursor: pointer; transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ════ HOME ════ */
+    .hero {
+      position: relative; height: calc(100vh - 72px); min-height: 580px;
+      display: flex; align-items: flex-end; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('hero.jpeg');
+      background-size: cover; background-position: center 30%;
+      filter: brightness(0.32); transform: scale(1.04);
+      animation: heroZoom 14s ease-in-out infinite alternate;
+    }
+    @keyframes heroZoom { from { transform: scale(1.04); } to { transform: scale(1.0); } }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.25) 65%, transparent 100%);
+    }
+    .hero-content { position: relative; z-index: 2; padding: 0 64px 72px; max-width: 860px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--gold); color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 6px 14px; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 8rem);
+      line-height: 0.92; letter-spacing: 0.02em; color: var(--white); margin-bottom: 20px;
+    }
+    .hero-title span { color: var(--gold); }
+    .hero-sub {
+      font-size: 1.05rem; font-weight: 300; color: rgba(245,243,239,0.65);
+      max-width: 460px; line-height: 1.75; margin-bottom: 36px;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-stats {
+      position: absolute; right: 64px; bottom: 72px; z-index: 2;
+      display: flex; flex-direction: column; gap: 20px; text-align: right;
+    }
+    .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; color: var(--gold); line-height: 1; }
+    .stat-label {
+      font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem;
+      font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 2px;
+    }
+    .home-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .home-card {
+      background: var(--surface); padding: 36px 28px;
+      position: relative; overflow: hidden; transition: background 0.3s;
+    }
+    .home-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--gold); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.4s ease;
+    }
+    .home-card:hover::after { transform: scaleX(1); }
+    .home-card:hover { background: #1e1e1e; }
+    .home-card-icon { font-size: 1.6rem; margin-bottom: 14px; }
+    .home-card-title {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1rem;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); margin-bottom: 8px;
+    }
+    .home-card-desc { font-size: 0.84rem; font-weight: 300; color: var(--muted); line-height: 1.65; }
+
+    /* ─── HOW IT WORKS (Home) ─── */
+    .how-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 48px;
+    }
+    .how-section .section-title { margin-bottom: 56px; }
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      position: relative;
+    }
+    .step-card {
+      background: var(--surface);
+      padding: 36px 24px;
+      position: relative;
+    }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 4rem;
+      color: rgba(201,168,76,0.12);
+      line-height: 1;
+      position: absolute;
+      top: 16px; right: 16px;
+    }
+    .step-icon { font-size: 1.5rem; margin-bottom: 16px; }
+    .step-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+    .step-desc { font-size: 0.84rem; font-weight: 300; color: var(--muted); line-height: 1.65; }
+
+    /* ─── INSURANCE STRIP (Home) ─── */
+    .insurance-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .insurance-strip-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .insurance-logos {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .insurance-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color 0.2s;
+    }
+    .insurance-name:hover { color: var(--gold); }
+
+    /* ════ ABOUT ════ */
+    .about-wrap {
+      max-width: 1100px; margin: 0 auto; padding: 80px 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    }
+    .about-images { position: relative; height: 540px; }
+    .about-img-main { position: absolute; top: 0; left: 0; width: 74%; height: 78%; object-fit: cover; }
+    .about-img-accent {
+      position: absolute; bottom: 0; right: 0; width: 54%; height: 54%;
+      object-fit: cover; border: 4px solid var(--black);
+    }
+    .about-gold-bar { position: absolute; top: -10px; left: -10px; width: 72px; height: 72px; background: var(--gold); z-index: -1; }
+    .about-features { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 12px; }
+    .feature-icon {
+      width: 34px; height: 34px; background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.25);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.85rem;
+    }
+    .feature-text strong {
+      display: block; font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white);
+    }
+    .feature-text span { font-size: 0.78rem; color: var(--muted); }
+
+    /* ─── TEAM / SHOP (About) ─── */
+    .shop-section {
+      background: var(--surface);
+      padding: 80px 48px;
+    }
+    .shop-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .shop-image {
+      width: 100%;
+      height: 460px;
+      object-fit: cover;
+    }
+    .shop-list {
+      list-style: none;
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .shop-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .shop-list-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+    .shop-list-text {
+      font-size: 0.9rem;
+      color: rgba(245,243,239,0.7);
+      line-height: 1.6;
+      padding-top: 5px;
+    }
+
+    /* ─── VALUES (About) ─── */
+    .values-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 48px;
+    }
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 48px;
+    }
+    .value-card {
+      background: var(--surface);
+      padding: 40px 32px;
+      border-top: 3px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .value-card:hover { border-top-color: var(--gold); background: #1e1e1e; }
+    .value-icon { font-size: 2rem; margin-bottom: 20px; }
+    .value-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .value-desc { font-size: 0.88rem; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+    /* ════ SERVICES ════ */
+    .services-wrap { max-width: 1100px; margin: 0 auto; padding: 80px 48px; }
+    .services-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 56px; }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .service-card {
+      background: var(--surface); padding: 36px 28px;
+      position: relative; overflow: hidden; transition: background 0.3s; cursor: default;
+    }
+    .service-card::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: var(--gold); transform: scaleX(0);
+      transform-origin: left; transition: transform 0.4s ease;
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-card:hover { background: #1e1e1e; }
+    .service-number {
+      font-family: 'Bebas Neue', sans-serif; font-size: 3.5rem;
+      color: rgba(201,168,76,0.09); line-height: 1; position: absolute; top: 20px; right: 20px;
+    }
+    .service-icon { font-size: 1.6rem; margin-bottom: 16px; }
+    .service-name {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 1.1rem;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--white); margin-bottom: 10px;
+    }
+    .service-desc { font-size: 0.85rem; font-weight: 300; color: var(--muted); line-height: 1.7; }
+
+    /* ─── SERVICE PROCESS ─── */
+    .process-section {
+      background: var(--surface);
+      padding: 80px 48px;
+    }
+    .process-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      margin-top: 56px;
+      position: relative;
+    }
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: var(--border);
+    }
+    .process-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 16px;
+    }
+    .process-dot {
+      width: 56px;
+      height: 56px;
+      background: var(--black);
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: var(--gold);
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+    }
+    .process-step-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .process-step-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ─── FAQ (Services) ─── */
+    .faq-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 48px;
+    }
+    .faq-list { margin-top: 48px; }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .faq-q {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--white);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+    .faq-q:hover { color: var(--gold); }
+    .faq-toggle { color: var(--gold); font-size: 1.2rem; flex-shrink: 0; transition: transform 0.3s; }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+    .faq-a {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(245,243,239,0.6);
+      line-height: 1.75;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s;
+    }
+    .faq-item.open .faq-a { max-height: 300px; padding-top: 14px; }
+
+    /* ════ GALLERY ════ */
+    .gallery-wrap { max-width: 1100px; margin: 0 auto; padding: 80px 48px; }
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 260px 260px; gap: 4px; margin-top: 48px;
+    }
+    .gallery-item { overflow: hidden; position: relative; cursor: pointer; }
+    .gallery-item:nth-child(1) { grid-column: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 2; }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease, filter 0.4s;
+      filter: brightness(0.82) saturate(0.75);
+    }
+    .gallery-item:hover img { transform: scale(1.07); filter: brightness(1) saturate(1); }
+    .gallery-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 18px 16px;
+      background: linear-gradient(to top, rgba(10,10,10,0.88), transparent);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.35s, transform 0.35s;
+    }
+    .gallery-item:hover .gallery-caption { opacity: 1; transform: translateY(0); }
+    .gallery-caption-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .gallery-caption-desc { font-size: 0.78rem; color: rgba(245,243,239,0.65); margin-top: 3px; }
+
+    /* ─── BEFORE / AFTER (Gallery) ─── */
+    .before-after-section {
+      background: var(--surface);
+      padding: 80px 48px;
+    }
+    .before-after-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .ba-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 48px;
+    }
+    .ba-card { position: relative; overflow: hidden; }
+    .ba-card img { width: 100%; height: 280px; object-fit: cover; display: block; filter: brightness(0.75) saturate(0.6); }
+    .ba-card:hover img { filter: brightness(0.9) saturate(1); }
+    .ba-label {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: var(--gold);
+      color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+    }
+    .ba-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 18px 16px;
+      background: linear-gradient(to top, rgba(10,10,10,0.9), transparent);
+    }
+    .ba-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .ba-desc { font-size: 0.75rem; color: var(--muted); margin-top: 3px; }
+
+    /* ─── GALLERY STATS ─── */
+    .gallery-stats {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 64px 48px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    .gallery-stat {
+      background: var(--surface);
+      padding: 36px 24px;
+      text-align: center;
+      border-top: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .gallery-stat:hover { border-top-color: var(--gold); }
+    .gallery-stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .gallery-stat-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ════ CONTACT ════ */
+    .contact-wrap {
+      max-width: 1100px; margin: 0 auto; padding: 80px 48px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+    }
+    .contact-detail { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 24px; }
+    .contact-detail-icon {
+      width: 40px; height: 40px; background: rgba(201,168,76,0.1);
+      border: 1px solid rgba(201,168,76,0.22);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.95rem;
+    }
+    .contact-detail-text strong {
+      display: block; font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 600; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 3px;
+    }
+    .contact-detail-text a, .contact-detail-text span { font-size: 0.92rem; color: var(--white); text-decoration: none; }
+    .contact-detail-text a:hover { color: var(--gold); }
+    .map-embed { width: 100%; height: 190px; border: 0; margin-top: 28px; filter: grayscale(80%) brightness(0.55); }
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
+    .form-group label {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 0.7rem;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--white); font-family: 'Barlow', sans-serif; font-size: 0.88rem;
+      padding: 11px 14px; outline: none; transition: border-color 0.2s; width: 100%; appearance: none;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+    .form-group select option { background: var(--surface); }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+    .form-submit {
+      background: var(--gold); color: var(--black);
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 15px 28px; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.2s; align-self: flex-start; margin-top: 6px;
+    }
+    .form-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* ─── WHY CHOOSE US (Contact) ─── */
+    .why-section {
+      background: var(--surface);
+      padding: 64px 48px;
+    }
+    .why-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin-top: 40px;
+    }
+    .why-card {
+      padding: 28px 22px;
+      background: var(--black);
+      text-align: center;
+    }
+    .why-icon { font-size: 1.6rem; margin-bottom: 14px; }
+    .why-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+    .why-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-center, .nav-cta { display: none; }
+      .mobile-menu-btn { display: flex; }
+      .hero-content { padding: 0 24px 56px; }
+      .hero-stats { display: none; }
+      .home-cards { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .process-steps::before { display: none; }
+      .trust-bar { grid-template-columns: 1fr 1fr; padding: 24px; }
+      .trust-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .trust-item:nth-child(2n) { border-right: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .testimonials-section { padding: 48px 24px; }
+      .cta-band { padding: 48px 24px; flex-direction: column; gap: 24px; }
+      .about-wrap { grid-template-columns: 1fr; gap: 40px; padding: 48px 24px; }
+      .about-images { height: 380px; }
+      .about-features { grid-template-columns: 1fr; }
+      .shop-inner { grid-template-columns: 1fr; }
+      .values-grid { grid-template-columns: 1fr; }
+      .shop-section { padding: 48px 24px; }
+      .values-section { padding: 48px 24px; }
+      .how-section { padding: 48px 24px; }
+      .insurance-strip { flex-direction: column; align-items: flex-start; gap: 20px; padding: 32px 24px; }
+      .services-wrap { padding: 48px 24px; }
+      .services-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .process-section { padding: 48px 24px; }
+      .faq-section { padding: 48px 24px; }
+      .gallery-wrap { padding: 48px 24px; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .gallery-item { height: 200px; }
+      .gallery-item:nth-child(1) { grid-column: span 2; height: 240px; }
+      .gallery-item:nth-child(5) { grid-column: span 1; }
+      .before-after-section { padding: 48px 24px; }
+      .ba-grid { grid-template-columns: 1fr; }
+      .gallery-stats { grid-template-columns: 1fr 1fr; padding: 40px 24px; }
+      .contact-wrap { grid-template-columns: 1fr; gap: 48px; padding: 48px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .why-section { padding: 48px 24px; }
+      .why-grid { grid-template-columns: 1fr 1fr; }
+      footer { padding: 32px 24px; flex-direction: column; align-items: flex-start; }
+      .footer-links { flex-wrap: wrap; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" data-page="home" href="#">
+    <img src="logo.jpeg" alt="Dr. Auto Paint and Body" style="height:96px;width:auto;display:block;object-fit:contain;mix-blend-mode:lighten;" />
+  </a>
+  <ul class="nav-center">
+    <li><a data-page="home"     href="#" class="active">Home</a></li>
+    <li><a data-page="about"    href="#">About</a></li>
+    <li><a data-page="services" href="#">Services</a></li>
+    <li><a data-page="gallery"  href="#">Gallery</a></li>
+    <li><a data-page="contact"  href="#">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="tel:4699903796" class="nav-cta">☎ Call Now</a>
+    <button class="mobile-menu-btn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div id="mobile-nav">
+  <a data-page="home"     href="#">Home</a>
+  <a data-page="about"    href="#">About</a>
+  <a data-page="services" href="#">Services</a>
+  <a data-page="gallery"  href="#">Gallery</a>
+  <a data-page="contact"  href="#">Contact</a>
+  <a href="tel:4699903796" class="mobile-call">☎ (469) 990-3796</a>
+</div>
+
+<!-- ════ HOME ════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">★ Frisco's Trusted Auto Paint &amp; Body</div>
+      <h1 class="hero-title">Dr. Auto<br/><span>Paint &amp; Body</span></h1>
+      <p class="hero-sub">Expert collision repair and auto painting in Frisco, TX. Owner Jose and his team bring your vehicle back to its original glory — or better.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" data-page="contact" href="#">Get a Free Estimate</a>
+        <a class="btn-outline" href="tel:4699903796">(469) 990-3796</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div><div class="stat-num">4.8★</div><div class="stat-label">Google Rating</div></div>
+      <div><div class="stat-num">200+</div><div class="stat-label">Cars Restored</div></div>
+      <div><div class="stat-num">10+</div><div class="stat-label">Years in DFW</div></div>
+    </div>
+  </div>
+
+  <div class="marquee-bar">
+    <div class="marquee-track">
+      <span>Collision Repair</span><span>Paint Restoration</span><span>Dent Removal</span>
+      <span>Frame Straightening</span><span>Insurance Work</span><span>Bumper Repair</span>
+      <span>Auto Detailing</span><span>Free Estimates</span>
+      <span>Collision Repair</span><span>Paint Restoration</span><span>Dent Removal</span>
+      <span>Frame Straightening</span><span>Insurance Work</span><span>Bumper Repair</span>
+      <span>Auto Detailing</span><span>Free Estimates</span>
+    </div>
+  </div>
+
+  <div class="home-cards">
+    <div class="home-card">
+      <div class="home-card-icon">🚗</div>
+      <div class="home-card-title">Collision Repair</div>
+      <p class="home-card-desc">From minor fender-benders to major accident damage — fully restored to pre-accident condition.</p>
+    </div>
+    <div class="home-card">
+      <div class="home-card-icon">🎨</div>
+      <div class="home-card-title">Paint Restoration</div>
+      <p class="home-card-desc">Color-matched, factory-quality refinishing. Partial panel or full-vehicle paint jobs available.</p>
+    </div>
+    <div class="home-card">
+      <div class="home-card-icon">🛡️</div>
+      <div class="home-card-title">Insurance Direct</div>
+      <p class="home-card-desc">We work directly with all major insurance carriers. We handle the paperwork, you handle nothing.</p>
+    </div>
+  </div>
+
+  <!-- Trust Numbers -->
+  <div class="trust-bar">
+    <div class="trust-item">
+      <div class="trust-num">200+</div>
+      <div class="trust-label">Vehicles Restored</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">10+</div>
+      <div class="trust-label">Years in Frisco</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">4.8★</div>
+      <div class="trust-label">Google Rating</div>
+    </div>
+    <div class="trust-item">
+      <div class="trust-num">100%</div>
+      <div class="trust-label">Satisfaction Guarantee</div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="how-section">
+    <span class="section-label">Simple Process</span>
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">📞</div>
+        <div class="step-title">Call or Request Online</div>
+        <p class="step-desc">Contact us by phone or submit our free estimate form. We respond same day.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">🔍</div>
+        <div class="step-title">Free Inspection</div>
+        <p class="step-desc">Bring your vehicle in. We assess the damage and give you a transparent, no-pressure estimate.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">📋</div>
+        <div class="step-title">Insurance Handled</div>
+        <p class="step-desc">We work directly with your insurer — filing claims, handling adjusters, and approvals.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-icon">🔧</div>
+        <div class="step-title">Expert Repairs</div>
+        <p class="step-desc">Our certified technicians restore your vehicle using OEM parts and premium materials.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insurance strip -->
+  <div class="insurance-strip">
+    <span class="insurance-strip-label">We Work With</span>
+    <div class="insurance-logos">
+      <span class="insurance-name">State Farm</span>
+      <span class="insurance-name">GEICO</span>
+      <span class="insurance-name">Allstate</span>
+      <span class="insurance-name">Progressive</span>
+      <span class="insurance-name">USAA</span>
+      <span class="insurance-name">Farmers</span>
+      <span class="insurance-name">Liberty Mutual</span>
+      <span class="insurance-name">Nationwide</span>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-section">
+    <span class="section-label">What Customers Say</span>
+    <h2 class="section-title">Real Reviews.<br/>Real Results.</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">My Tahoe was rear-ended pretty badly. Dr. Auto Paint &amp; Body had it looking brand new in less than two weeks. The color match was perfect and they kept me updated the whole time.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MR</div>
+          <div>
+            <div class="testimonial-name">Marcus R.</div>
+            <div class="testimonial-vehicle">2022 Chevy Tahoe · Rear collision repair</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Hail season wrecked my car. They handled everything with my insurance and I didn't have to make a single call. Picked it up and it looked showroom ready.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JL</div>
+          <div>
+            <div class="testimonial-name">Jennifer L.</div>
+            <div class="testimonial-vehicle">2020 Honda Accord · Hail damage</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Best auto body shop in Frisco, no question. Honest pricing, no upsells, and my truck came back better than before the accident. I send everyone I know here.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">DT</div>
+          <div>
+            <div class="testimonial-name">Derek T.</div>
+            <div class="testimonial-vehicle">2019 F-150 · Full right-side repair</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Band -->
+  <div class="cta-band">
+    <div>
+      <div class="cta-band-title">Ready to Get Your Car Fixed Right?</div>
+      <p class="cta-band-sub">Free estimates · Insurance direct · Same-day response · Frisco, TX</p>
+    </div>
+    <a class="btn-dark" data-page="contact" href="#">Request a Free Estimate</a>
+  </div>
+
+  <footer>
+    <span class="footer-logo" data-page="home">Dr. Auto Paint &amp; Body</span>
+    <div class="footer-links">
+      <a data-page="about"    href="#">About</a>
+      <a data-page="services" href="#">Services</a>
+      <a data-page="gallery"  href="#">Gallery</a>
+      <a data-page="contact"  href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Dr. Auto Paint &amp; Body · Frisco, TX</p>
+  </footer>
+</div>
+
+<!-- ════ ABOUT ════ -->
+<div class="page" id="page-about">
+  <div class="about-wrap">
+    <div class="about-images">
+      <div class="about-gold-bar"></div>
+      <img class="about-img-main" src="shop-interior.jpeg" alt="Auto body repair" />
+      <img class="about-img-accent" src="after1.jpeg" alt="Completed repair" />
+    </div>
+    <div>
+      <span class="section-label">About Us</span>
+      <h2 class="section-title">Frisco's<br/>Trusted Paint &amp; Body</h2>
+      <p class="section-sub">Dr. Auto Paint &amp; Body has been serving the Frisco, TX community for over 10 years. From minor dents to major collision damage, owner Jose and his team treat every vehicle with precision, care, and the same attention they'd give their own car.</p>
+      <p class="section-sub" style="margin-top:14px;">We built our reputation by doing one thing right: honest work at fair prices. Today we serve hundreds of families across Frisco, Plano, Allen, and McKinney — and we work directly with all major insurance companies so the process is never a headache for you.</p>
+      <div class="about-features">
+        <div class="feature-item">
+          <div class="feature-icon">🔧</div>
+          <div class="feature-text"><strong>Expert Techs</strong><span>I-CAR certified professionals</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🛡️</div>
+          <div class="feature-text"><strong>Insurance Direct</strong><span>All carriers accepted</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">✦</div>
+          <div class="feature-text"><strong>Free Estimates</strong><span>No hidden charges, ever</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">⭐</div>
+          <div class="feature-text"><strong>4.8-Star Rated</strong><span>Google verified · 49 reviews</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🚗</div>
+          <div class="feature-text"><strong>OEM Parts</strong><span>Factory-spec components</span></div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📅</div>
+          <div class="feature-text"><strong>On-Time Delivery</strong><span>We respect your schedule</span></div>
+        </div>
+      </div>
+      <div style="margin-top:36px; display:flex; gap:14px; flex-wrap:wrap;">
+        <a class="btn-primary" data-page="contact" href="#">Get a Free Estimate</a>
+        <a class="btn-outline" href="tel:4699903796">Call Us Now</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shop & Equipment section -->
+  <div class="shop-section">
+    <div class="shop-inner">
+      <img class="shop-image" src="shop-interior.jpeg" alt="Our facility" />
+      <div>
+        <span class="section-label">Our Shop</span>
+        <h2 class="section-title">State-of-the-Art<br/>Facility</h2>
+        <p class="section-sub">Our Frisco facility is equipped with the latest tools and technology to handle any repair — from modern aluminum-bodied trucks to classic vehicles.</p>
+        <ul class="shop-list">
+          <li>
+            <div class="shop-list-icon">✓</div>
+            <div class="shop-list-text"><strong style="color:var(--white);">Computerized Frame Straightening</strong> — Chief Genesis measuring system ensures your vehicle's structure is restored to factory tolerances.</div>
+          </li>
+          <li>
+            <div class="shop-list-icon">✓</div>
+            <div class="shop-list-text"><strong style="color:var(--white);">Downdraft Paint Booth</strong> — Controlled environment for flawless, dust-free paint application and curing.</div>
+          </li>
+          <li>
+            <div class="shop-list-icon">✓</div>
+            <div class="shop-list-text"><strong style="color:var(--white);">Computerized Color Matching</strong> — Spectrophotometer technology for a perfect match to your vehicle's factory color.</div>
+          </li>
+          <li>
+            <div class="shop-list-icon">✓</div>
+            <div class="shop-list-text"><strong style="color:var(--white);">ADAS Calibration</strong> — We recalibrate advanced safety systems after any structural repair so your sensors work correctly.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Values -->
+  <div class="values-section">
+    <span class="section-label">What We Stand For</span>
+    <h2 class="section-title">Our Values</h2>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🤝</div>
+        <div class="value-title">Transparency First</div>
+        <p class="value-desc">We walk you through every item on your estimate. No surprise charges, no upsells, and no work starts without your approval.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⚡</div>
+        <div class="value-title">Craftsmanship</div>
+        <p class="value-desc">Every repair is backed by our quality guarantee. We use OEM parts, factory procedures, and our work is inspected twice before handoff.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🏘️</div>
+        <div class="value-title">Community</div>
+        <p class="value-desc">We're a Frisco family business. Jose personally oversees every repair — our reputation is built on neighbors trusting neighbors, and we take that seriously every single day.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials on About -->
+  <div class="testimonials-section" style="background:var(--surface); max-width:100%; padding:80px 0;">
+    <div style="max-width:1100px; margin:0 auto; padding:0 48px;">
+      <span class="section-label" style="text-align:left; display:block;">Customer Stories</span>
+      <h2 class="section-title">Don't Take Our Word For It</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card" style="background:var(--black);">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">Every time I bring a car here, the result is perfect. Jose treats your vehicle like it's his own and the pricing is always fair. Won't go anywhere else.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">SM</div>
+            <div>
+              <div class="testimonial-name">Sandra M.</div>
+              <div class="testimonial-vehicle">Frisco, TX · Long-time customer</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card" style="background:var(--black);">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">They replaced my bumper and fixed scratches I'd been ignoring for months. Honest estimate, no fluff, no pressure. Car looks incredible.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">KP</div>
+            <div>
+              <div class="testimonial-name">Kevin P.</div>
+              <div class="testimonial-vehicle">Frisco, TX · Bumper + paint correction</div>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card" style="background:var(--black);">
+          <div class="testimonial-quote-mark">"</div>
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">Got in a bad accident on 75. Dr. Auto Paint &amp; Body coordinated everything with my insurance and had my car back to me looking factory-perfect in 10 days.</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">AT</div>
+            <div>
+              <div class="testimonial-name">Alicia T.</div>
+              <div class="testimonial-vehicle">Allen, TX · Full front-end collision</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div>
+      <div class="cta-band-title">Let Us Earn Your Trust</div>
+      <p class="cta-band-sub">Serving Frisco, Plano, Allen, and McKinney · Free estimates always</p>
+    </div>
+    <a class="btn-dark" data-page="contact" href="#">Schedule an Estimate</a>
+  </div>
+
+  <footer>
+    <span class="footer-logo" data-page="home">Dr. Auto Paint &amp; Body</span>
+    <div class="footer-links">
+      <a data-page="home"     href="#">Home</a>
+      <a data-page="services" href="#">Services</a>
+      <a data-page="gallery"  href="#">Gallery</a>
+      <a data-page="contact"  href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Dr. Auto Paint &amp; Body · Frisco, TX</p>
+  </footer>
+</div>
+
+<!-- ════ SERVICES ════ -->
+<div class="page" id="page-services">
+  <div class="services-wrap">
+    <div class="services-header">
+      <div>
+        <span class="section-label">What We Do</span>
+        <h2 class="section-title">Our Services</h2>
+      </div>
+      <a class="btn-primary" data-page="contact" href="#">Get an Estimate</a>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-number">01</div>
+        <div class="service-icon">🚗</div>
+        <div class="service-name">Collision Repair</div>
+        <p class="service-desc">Full-service collision restoration from minor fender-benders to major accident damage. We restore your vehicle to pre-accident condition using OEM parts and factory procedures.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">02</div>
+        <div class="service-icon">🎨</div>
+        <div class="service-name">Auto Painting</div>
+        <p class="service-desc">Color-matched, factory-quality paint jobs using computerized spectrophotometer matching and premium materials. Partial panel or full-vehicle refinishing available.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">03</div>
+        <div class="service-icon">🔩</div>
+        <div class="service-name">Frame Straightening</div>
+        <p class="service-desc">State-of-the-art computerized frame and structural repair using Chief Genesis technology to restore your vehicle's integrity and alignment after serious impact.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">04</div>
+        <div class="service-icon">🛠️</div>
+        <div class="service-name">Dent & Ding Removal</div>
+        <p class="service-desc">Paintless dent repair (PDR) for minor dings and hail damage, as well as traditional dent removal for more significant damage — all without affecting your factory finish.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">05</div>
+        <div class="service-icon">🔦</div>
+        <div class="service-name">Bumper Repair</div>
+        <p class="service-desc">Bumper repair, replacement, and refinishing. From scuffs and cracks to complete replacements, we handle plastic, fiberglass, and steel bumpers with precision.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">06</div>
+        <div class="service-icon">✨</div>
+        <div class="service-name">Paint Correction & Detail</div>
+        <p class="service-desc">Professional paint correction, machine polishing, and detailing to remove swirl marks, oxidation, and scratches — restoring deep gloss and protecting your vehicle's finish.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">07</div>
+        <div class="service-icon">🌩️</div>
+        <div class="service-name">Hail Damage Repair</div>
+        <p class="service-desc">Texas hail is brutal. We specialize in hail damage assessment and PDR repair, and we work directly with your insurance to get your car looking perfect again.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">08</div>
+        <div class="service-icon">📋</div>
+        <div class="service-name">Insurance Claims</div>
+        <p class="service-desc">We handle all paperwork and communication with your insurer — from the initial claim to the final supplement. You drop off the car; we take care of the rest.</p>
+      </div>
+      <div class="service-card">
+        <div class="service-number">09</div>
+        <div class="service-icon">📡</div>
+        <div class="service-name">ADAS Calibration</div>
+        <p class="service-desc">After structural repairs, your vehicle's cameras and safety sensors must be recalibrated. We perform factory-spec ADAS calibration so every system works as designed.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Process -->
+  <div class="process-section">
+    <div class="process-inner">
+      <span class="section-label">Step by Step</span>
+      <h2 class="section-title">Our Repair Process</h2>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="process-dot">1</div>
+          <div class="process-step-title">Drop-Off & Inspection</div>
+          <p class="process-step-desc">We inspect your vehicle inside and out and document all damage with photos.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-dot">2</div>
+          <div class="process-step-title">Estimate & Approval</div>
+          <p class="process-step-desc">You receive a clear, line-item estimate. No work begins until you approve.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-dot">3</div>
+          <div class="process-step-title">Insurance Coordination</div>
+          <p class="process-step-desc">We contact your insurer, handle adjuster meetings, and manage supplements.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-dot">4</div>
+          <div class="process-step-title">Repair & Paint</div>
+          <p class="process-step-desc">Structural repair, panel work, and factory-matched paint in our downdraft booth.</p>
+        </div>
+        <div class="process-step">
+          <div class="process-dot">5</div>
+          <div class="process-step-title">Quality Check & Pickup</div>
+          <p class="process-step-desc">Two-stage quality inspection before you pick up your vehicle — looking its best.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <span class="section-label">Common Questions</span>
+    <h2 class="section-title">FAQs</h2>
+    <div class="faq-list">
+      <div class="faq-item open">
+        <div class="faq-q">Do you work with my insurance company? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Yes — we work with all major insurance carriers including State Farm, GEICO, Allstate, Progressive, USAA, Farmers, Liberty Mutual, and more. We handle the entire claims process so you don't have to make calls or chase paperwork.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How long will my repair take? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Repair time depends on the extent of damage and parts availability. Minor dent or bumper repairs typically take 2–4 days. Collision repairs with structural damage typically range from 1–2 weeks. We'll give you a realistic timeline upfront and update you throughout the process.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Do you use OEM or aftermarket parts? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">We prefer OEM (original equipment manufacturer) parts to ensure proper fit and function. If your insurance specifies aftermarket parts, we'll discuss your options and always prioritize quality and safety.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is your work guaranteed? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">Yes. All of our repairs come with a written workmanship guarantee. If something isn't right after you pick up your vehicle, bring it back and we'll make it right — no questions asked.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I get a rental car while my vehicle is being repaired? <span class="faq-toggle">+</span></div>
+        <div class="faq-a">If the accident was covered by insurance, your policy likely includes rental reimbursement. We can help coordinate rental arrangements through your insurer. We're also conveniently located near several rental car providers in McKinney.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div>
+      <div class="cta-band-title">Not Sure What You Need?</div>
+      <p class="cta-band-sub">Bring it in — our estimates are always free and there's no pressure</p>
+    </div>
+    <a class="btn-dark" data-page="contact" href="#">Get a Free Estimate</a>
+  </div>
+
+  <footer>
+    <span class="footer-logo" data-page="home">Dr. Auto Paint &amp; Body</span>
+    <div class="footer-links">
+      <a data-page="home"    href="#">Home</a>
+      <a data-page="about"   href="#">About</a>
+      <a data-page="gallery" href="#">Gallery</a>
+      <a data-page="contact" href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Dr. Auto Paint &amp; Body · Frisco, TX</p>
+  </footer>
+</div>
+
+<!-- ════ GALLERY ════ -->
+<div class="page" id="page-gallery">
+  <div class="gallery-wrap">
+    <span class="section-label">Our Work</span>
+    <h2 class="section-title">Gallery</h2>
+    <p class="section-sub">Every vehicle you see here was brought in damaged and left looking factory-perfect. This is what we do, every single day.</p>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="hero.jpeg" alt="White F-150 at shop" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">Ford F-150 · Paint & Body</div>
+          <div class="gallery-caption-desc">Frisco, TX · Completed at Dr. Auto</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="truck-gmc1.jpeg" alt="GMC Sierra front" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">GMC Sierra · Full Detail</div>
+          <div class="gallery-caption-desc">Paint correction + exterior restoration</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="truck-gmc2.jpeg" alt="GMC Sierra side" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">GMC Sierra · Side Profile</div>
+          <div class="gallery-caption-desc">Showroom-ready finish</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="truck-hyundai.jpeg" alt="Hyundai Palisade" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">Hyundai Palisade · Collision Repair</div>
+          <div class="gallery-caption-desc">Full restoration · Frisco, TX</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="shop-interior.jpeg" alt="Shop interior" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">Our Facility</div>
+          <div class="gallery-caption-desc">Full paint booth + collision bays</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="bmw-detail.jpeg" alt="BMW Alpina detail" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">BMW Alpina XB7 · Detail</div>
+          <div class="gallery-caption-desc">Mirror-finish paint correction</div>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="shop-exterior.jpeg" alt="Shop exterior" />
+        <div class="gallery-caption">
+          <div class="gallery-caption-title">Dr. Auto — Frisco, TX</div>
+          <div class="gallery-caption-desc">1927 Old Witt Rd Suite 500</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Before / After -->
+  <div class="before-after-section">
+    <div class="before-after-inner">
+      <span class="section-label">The Transformation</span>
+      <h2 class="section-title">Before & After</h2>
+      <p class="section-sub" style="margin-bottom:0;">Real vehicles, real results. Every repair backed by our written workmanship guarantee.</p>
+      <div class="ba-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="ba-card">
+          <img src="damage1.jpeg" alt="Before repair" />
+          <div class="ba-label">Before</div>
+          <div class="ba-info">
+            <div class="ba-title">Rear Quarter Panel Damage</div>
+            <div class="ba-desc">Ford F-150 FX4 · Side scrape + dents</div>
+          </div>
+        </div>
+        <div class="ba-card">
+          <img src="after1.jpeg" alt="After repair" />
+          <div class="ba-label">After</div>
+          <div class="ba-info">
+            <div class="ba-title">Fully Restored</div>
+            <div class="ba-desc">Ford F-150 FX4 · Factory finish restored</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gallery Stats -->
+  <div class="gallery-stats">
+    <div class="gallery-stat">
+      <div class="gallery-stat-num">200+</div>
+      <div class="gallery-stat-label">Vehicles Restored</div>
+    </div>
+    <div class="gallery-stat">
+      <div class="gallery-stat-num">10+</div>
+      <div class="gallery-stat-label">Years in Business</div>
+    </div>
+    <div class="gallery-stat">
+      <div class="gallery-stat-num">All</div>
+      <div class="gallery-stat-label">Makes & Models</div>
+    </div>
+    <div class="gallery-stat">
+      <div class="gallery-stat-num">100%</div>
+      <div class="gallery-stat-label">Satisfaction Guarantee</div>
+    </div>
+  </div>
+
+  <div class="cta-band">
+    <div>
+      <div class="cta-band-title">Your Car Could Look This Good</div>
+      <p class="cta-band-sub">Free estimates · No pressure · Frisco, TX</p>
+    </div>
+    <a class="btn-dark" data-page="contact" href="#">Get a Free Estimate</a>
+  </div>
+
+  <footer>
+    <span class="footer-logo" data-page="home">Dr. Auto Paint &amp; Body</span>
+    <div class="footer-links">
+      <a data-page="home"     href="#">Home</a>
+      <a data-page="about"    href="#">About</a>
+      <a data-page="services" href="#">Services</a>
+      <a data-page="contact"  href="#">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Dr. Auto Paint &amp; Body · Frisco, TX</p>
+  </footer>
+</div>
+
+<!-- ════ CONTACT ════ -->
+<div class="page" id="page-contact">
+  <div class="contact-wrap">
+    <div>
+      <span class="section-label">Get In Touch</span>
+      <h2 class="section-title">Let's Get Your<br/>Car Looking New.</h2>
+      <p class="section-sub" style="margin-bottom:36px;">Fill out the form and we'll get back to you within 24 hours. No pressure — just a real conversation about your vehicle.</p>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📍</div>
+        <div class="contact-detail-text">
+          <strong>Address</strong>
+          <a href="https://maps.google.com/?q=1927+Old+Witt+Rd+Suite+500,+Frisco,+TX+75036" target="_blank">1927 Old Witt Rd Suite 500, Frisco, TX 75036</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📞</div>
+        <div class="contact-detail-text">
+          <strong>Phone</strong>
+          <a href="tel:4699903796">(469) 990-3796</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">🕐</div>
+        <div class="contact-detail-text">
+          <strong>Hours</strong>
+          <span>Mon–Fri: 8am–5pm · Sat: 8am–12pm</span>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📧</div>
+        <div class="contact-detail-text">
+          <strong>Email</strong>
+          <a href="mailto:dr.autopaintnbody@gmail.com">dr.autopaintnbody@gmail.com</a>
+        </div>
+      </div>
+      <iframe
+        class="map-embed"
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3348.0!2d-96.8880!3d33.1234!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x864c23b1b1b1b1b1%3A0x1!2s1927+Old+Witt+Rd%2C+Frisco%2C+TX+75036!5e0!3m2!1sen!2sus!4v1"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Dr. Auto Paint & Body Location">
+      </iframe>
+    </div>
+    <div>
+      <span class="section-label">Free Estimate</span>
+      <h3 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.5vw,3rem);margin-bottom:28px;color:var(--white);">Send Us a Message</h3>
+      <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="John Smith" required />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="(469) 000-0000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label for="service">Service Needed</label>
+          <select id="service" name="service">
+            <option value="">— Select a service —</option>
+            <option>Collision Repair</option>
+            <option>Auto Painting</option>
+            <option>Frame Straightening</option>
+            <option>Dent & Ding Removal</option>
+            <option>Bumper Repair</option>
+            <option>Hail Damage Repair</option>
+            <option>Paint Correction & Detail</option>
+            <option>Insurance Claim</option>
+            <option>Other / Not Sure</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vehicle">Vehicle (Year / Make / Model)</label>
+          <input type="text" id="vehicle" name="vehicle" placeholder="e.g. 2021 Toyota Camry" />
+        </div>
+        <div class="form-group">
+          <label for="insurance">Insurance Company (if applicable)</label>
+          <input type="text" id="insurance" name="insurance" placeholder="e.g. State Farm" />
+        </div>
+        <div class="form-group">
+          <label for="message">Describe the Damage</label>
+          <textarea id="message" name="message" placeholder="Tell us what happened and what you need..."></textarea>
+        </div>
+        <button type="submit" class="form-submit">Send Message →</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Why Choose Us -->
+  <div class="why-section">
+    <div class="why-inner">
+      <span class="section-label">Why Dr. Auto</span>
+      <h2 class="section-title">What Sets Us Apart</h2>
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">⚡</div>
+          <div class="why-title">Fast Turnaround</div>
+          <p class="why-desc">We know you need your vehicle back. We work efficiently without cutting corners.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">🤝</div>
+          <div class="why-title">Insurance Experts</div>
+          <p class="why-desc">We've processed hundreds of claims. We know how to get you the repair you deserve.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📋</div>
+          <div class="why-title">Written Guarantee</div>
+          <p class="why-desc">Every repair comes with a written workmanship guarantee. We stand behind our work.</p>
+        </div>
+        <div class="why-card">
+          <div class="why-icon">📞</div>
+          <div class="why-title">Always Reachable</div>
+          <p class="why-desc">Updates throughout your repair. You'll always know where your vehicle stands.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second testimonial set -->
+  <div class="testimonials-section">
+    <span class="section-label">More Reviews</span>
+    <h2 class="section-title">Trusted by DFW Drivers</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">Called on a Monday, had an estimate Tuesday, repairs done by Friday. Blown away by how fast and professional everything was. Jose runs a tight ship.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">BH</div>
+          <div>
+            <div class="testimonial-name">Brian H.</div>
+            <div class="testimonial-vehicle">Plano, TX · Bumper + fender repair</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">My adjuster tried to low-ball the estimate. Dr. Auto Paint &amp; Body pushed back and got us a full supplement. Saved me over $2,000 in out-of-pocket costs.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">RV</div>
+          <div>
+            <div class="testimonial-name">Rosa V.</div>
+            <div class="testimonial-vehicle">Plano, TX · Insurance supplement</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-quote-mark">"</div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">They matched a hard metallic color perfectly. I've been to shops that couldn't do it. These guys nailed it on the first try. Highly recommend.</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">CW</div>
+          <div>
+            <div class="testimonial-name">Chris W.</div>
+            <div class="testimonial-vehicle">Allen, TX · Full quarter panel repaint</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-logo" data-page="home">Dr. Auto Paint &amp; Body</span>
+    <div class="footer-links">
+      <a data-page="home"     href="#">Home</a>
+      <a data-page="about"    href="#">About</a>
+      <a data-page="services" href="#">Services</a>
+      <a data-page="gallery"  href="#">Gallery</a>
+    </div>
+    <p class="footer-copy">© 2026 Dr. Auto Paint &amp; Body · Frisco, TX</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var current = 'home';
+
+  function showPage(name) {
+    if (name === current) return;
+    var out = document.getElementById('page-' + current);
+    var inn = document.getElementById('page-' + name);
+    if (!out || !inn) return;
+
+    out.classList.add('exit');
+    setTimeout(function () {
+      out.classList.remove('active', 'exit');
+      out.scrollTop = 0;
+      inn.classList.add('active');
+      inn.scrollTop = 0;
+      current = name;
+    }, 220);
+
+    document.querySelectorAll('.nav-center a[data-page]').forEach(function (a) {
+      a.classList.toggle('active', a.dataset.page === name);
+    });
+
+    var mn = document.getElementById('mobile-nav');
+    if (mn) mn.classList.remove('open');
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target.closest('[data-page]');
+    if (el) {
+      e.preventDefault();
+      showPage(el.dataset.page);
+      return;
+    }
+    if (e.target.closest('.mobile-menu-btn')) {
+      var mn = document.getElementById('mobile-nav');
+      if (mn) mn.classList.toggle('open');
+    }
+    // FAQ accordion
+    var faqQ = e.target.closest('.faq-q');
+    if (faqQ) {
+      var item = faqQ.closest('.faq-item');
+      var wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); });
+      if (!wasOpen) item.classList.add('open');
+    }
+  });
+})();
+</script>
+</body>
+</html>
