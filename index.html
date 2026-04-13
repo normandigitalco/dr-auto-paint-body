@@ -34,7 +34,7 @@
       position: fixed;
       inset: 0;
       overflow-y: auto;
-      padding-top: 104px;
+      padding-top: 110px;
       opacity: 0;
       transform: translateY(18px);
       pointer-events: none;
@@ -64,18 +64,23 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 48px;
-      height: 104px;
+      height: 110px;
       background: rgba(10,10,10,0.95);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
     .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.45rem;
-      letter-spacing: 0.08em;
-      color: var(--gold);
+      display: flex;
+      align-items: center;
       text-decoration: none;
       cursor: pointer;
+    }
+    .nav-logo img {
+      height: 85px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+      mix-blend-mode: lighten;
     }
     .nav-center {
       position: absolute;
@@ -131,7 +136,7 @@
     #mobile-nav {
       display: none;
       position: fixed;
-      top: 104px; left: 0; right: 0;
+      top: 110px; left: 0; right: 0;
       background: var(--deep);
       border-bottom: 1px solid var(--border);
       padding: 20px 24px 28px;
@@ -757,7 +762,7 @@
       transform: translateY(6px);
       transition: opacity 0.35s, transform 0.35s;
     }
-    .gallery-item:hover .gallery-caption { opacity: 1; transform: translateY(0); }
+    .gallery-item:hover .gallery-caption { opacity: 0; }
     .gallery-caption-title {
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 700;
@@ -976,7 +981,7 @@
 <!-- NAV -->
 <nav>
   <a class="nav-logo" data-page="home" href="#">
-    <img src="logo.jpeg" alt="Dr. Auto Paint and Body" style="height:96px;width:auto;display:block;object-fit:contain;mix-blend-mode:lighten;" />
+    <img src="logo_jpeg.jpeg" alt="Dr. Auto Paint and Body" />
   </a>
   <ul class="nav-center">
     <li><a data-page="home"     href="#" class="active">Home</a></li>
@@ -1543,14 +1548,14 @@
         </div>
       </div>
       <div class="gallery-item">
-        <img src="bmw-detail.jpeg" alt="BMW Alpina detail" />
+        <img src="bmw-detail__1_.jpeg" alt="BMW Alpina detail" />
         <div class="gallery-caption">
           <div class="gallery-caption-title">BMW Alpina XB7 · Detail</div>
           <div class="gallery-caption-desc">Mirror-finish paint correction</div>
         </div>
       </div>
       <div class="gallery-item">
-        <img src="shop-exterior.jpeg" alt="Shop exterior" />
+        <img src="shop-exterior__1_.jpeg" alt="Shop exterior" />
         <div class="gallery-caption">
           <div class="gallery-caption-title">Dr. Auto — Frisco, TX</div>
           <div class="gallery-caption-desc">1927 Old Witt Rd Suite 500</div>
@@ -1658,7 +1663,7 @@
         <div class="contact-detail-icon">📧</div>
         <div class="contact-detail-text">
           <strong>Email</strong>
-          <a href="mailto:dr.autopaintnbody@gmail.com">dr.autopaintnbody@gmail.com</a>
+          <a href="mailto:dr.autopaintnbody@gmail.com" style="color:var(--gold);">dr.autopaintnbody@gmail.com</a>
         </div>
       </div>
       <iframe
@@ -1672,7 +1677,8 @@
     <div>
       <span class="section-label">Free Estimate</span>
       <h3 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,3.5vw,3rem);margin-bottom:28px;color:var(--white);">Send Us a Message</h3>
-      <form class="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+      <form class="contact-form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_KEY" />
         <div class="form-row">
           <div class="form-group">
             <label for="name">Full Name</label>
@@ -1805,6 +1811,7 @@
   </footer>
 </div>
 
+
 <script>
 (function () {
   var current = 'home';
@@ -1814,7 +1821,6 @@
     var out = document.getElementById('page-' + current);
     var inn = document.getElementById('page-' + name);
     if (!out || !inn) return;
-
     out.classList.add('exit');
     setTimeout(function () {
       out.classList.remove('active', 'exit');
@@ -1823,11 +1829,9 @@
       inn.scrollTop = 0;
       current = name;
     }, 220);
-
     document.querySelectorAll('.nav-center a[data-page]').forEach(function (a) {
       a.classList.toggle('active', a.dataset.page === name);
     });
-
     var mn = document.getElementById('mobile-nav');
     if (mn) mn.classList.remove('open');
   }
@@ -1843,15 +1847,83 @@
       var mn = document.getElementById('mobile-nav');
       if (mn) mn.classList.toggle('open');
     }
-    // FAQ accordion
     var faqQ = e.target.closest('.faq-q');
     if (faqQ) {
       var item = faqQ.closest('.faq-item');
-      var wasOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(function (i) { i.classList.remove('open'); });
-      if (!wasOpen) item.classList.add('open');
+      if (!item) return;
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
+      if (!isOpen) item.classList.add('open');
     }
   });
+
+  function animateStats() {
+    document.querySelectorAll('.stat-num[data-target]').forEach(function(el) {
+      var target = parseFloat(el.dataset.target);
+      var suffix = el.dataset.suffix || '';
+      var start = 0;
+      var duration = 1200;
+      var startTime = null;
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        var val = start + (target - start) * progress;
+        el.textContent = (Number.isInteger(target) ? Math.floor(val) : val.toFixed(1)) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  animateStats();
+
+  var lbSrcs = [], lbCaptions = [], lbIdx = 0;
+  function buildGallery() {
+    document.querySelectorAll('.gallery-item[data-src]').forEach(function(el) {
+      lbSrcs.push(el.dataset.src);
+      lbCaptions.push(el.querySelector('.gallery-caption-title') ? el.querySelector('.gallery-caption-title').textContent : '');
+      el.addEventListener('click', function() {
+        lbIdx = lbSrcs.indexOf(this.dataset.src);
+        openLightbox();
+      });
+    });
+  }
+  function openLightbox() {
+    var lb = document.getElementById('lightbox');
+    if (!lb) return;
+    document.getElementById('lb-img').src = lbSrcs[lbIdx];
+    var cap = document.getElementById('lb-caption');
+    if (cap) cap.textContent = lbCaptions[lbIdx];
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    var lb = document.getElementById('lightbox');
+    if (lb) lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function lbNav(dir) {
+    lbIdx = (lbIdx + dir + lbSrcs.length) % lbSrcs.length;
+    openLightbox();
+  }
+  buildGallery();
+
+  var lbEl = document.getElementById('lightbox');
+  if (lbEl) {
+    lbEl.addEventListener('click', function(e) {
+      if (e.target === lbEl) closeLightbox();
+    });
+  }
+  document.addEventListener('keydown', function(e) {
+    var lb = document.getElementById('lightbox');
+    if (!lb || !lb.classList.contains('open')) return;
+    if (e.key === 'ArrowLeft') lbNav(-1);
+    if (e.key === 'ArrowRight') lbNav(1);
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  window.showPage = showPage;
+  window.closeLightbox = closeLightbox;
+  window.lbNav = lbNav;
 })();
 </script>
 </body>
